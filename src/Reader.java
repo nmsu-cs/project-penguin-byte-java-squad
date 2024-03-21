@@ -10,15 +10,10 @@ public class Reader {
         BufferedReader br = new BufferedReader(new FileReader(modifiedPath));
 
         String line;
-        while((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null) {
             shoppingList.add(line);
         }
         return shoppingList;
-    }
-
-    public static void main(String[] args) throws IOException {
-        ArrayList<String> ingredients = Reader.readList("/ingredients.txt");
-        System.out.println(ingredients);
     }
 }
 
