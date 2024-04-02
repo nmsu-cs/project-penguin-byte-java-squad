@@ -1,3 +1,5 @@
+package com.recipeapplication;
+
 import java.sql.*;
 public class database {
 
@@ -15,7 +17,7 @@ public class database {
         try {
             this.connection = DriverManager.getConnection(url, user, password);
         }catch(Exception e){
-            System.out.println("Database connection failed, database is probably not correctly setup.");
+            System.out.println("Database connection failed, com.recipeapplication.database is probably not correctly setup.");
             System.out.println(e);
         }
         return this.connection;
