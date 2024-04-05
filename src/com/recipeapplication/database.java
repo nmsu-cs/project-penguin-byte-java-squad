@@ -10,9 +10,9 @@ public class database {
             return connection;
         }
 
-        String url = "jdbc:mysql://localhost:3306/recipes";
-        String user = "primary";
-        String password = "1230";
+        String url = "jdbc:mysql://dbclass.cs.nmsu.edu:3306/cs371sp24";
+        String user = "cs371sp24";
+        String password = "RunningBeaver120";
 
         try {
             this.connection = DriverManager.getConnection(url, user, password);

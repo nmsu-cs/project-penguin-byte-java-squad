@@ -6,6 +6,8 @@ import com.mysql.cj.protocol.x.XProtocolRowInputStream;
 import com.recipeapplication.database;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.http.HttpResponse;
 import java.sql.*;
 public class Main {
@@ -35,20 +37,20 @@ public class Main {
 
             }
             prep.executeBatch();
-            System.out.println("");
+            System.out.println();
         }
     }
     public static void main(String[] args) throws SQLException {
-            // Set FlatLaf Dark as the application's look and feel
-            try {
-                UIManager.setLookAndFeel(new FlatDarkLaf());
-            } catch (UnsupportedLookAndFeelException e) {
-                System.err.println("Failed to initialize FlatLaf Dark");
-                throw new RuntimeException(e);
-            }
-            SwingUtilities.invokeLater(() -> createAndShowGUI());
+        // Set FlatLaf Dark as the application's look and feel
+        try {
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+        } catch (UnsupportedLookAndFeelException e) {
+            System.err.println("Failed to initialize FlatLaf Dark");
+            throw new RuntimeException(e);
+        }
+        SwingUtilities.invokeLater(Main::createAndShowGUI);
 
-            database = new database();
+        database = new database();
 
     }//of main
 
@@ -61,18 +63,41 @@ public class Main {
         JPanel navBar = new JPanel();
         navBar.add(new JButton("Settings"));
         navBar.add(new JButton("Ingredients"));
-        navBar.add(new JButton("Poop"));
+//        navBar.add(new JButton("Poop"));
 
         // Create the search panel
         JPanel searchPanel = new JPanel(new BorderLayout());
         JLabel titleLabel = new JLabel("Cooking Companion", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 32)); // Set font size and style
+        titleLabel.setFont(new Font("San Serif", Font.BOLD, 32)); // Set font size and style
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); // Add some padding around the title
 
         JTextField searchField = new JTextField(20);
-        JPanel searchFieldPanel = new JPanel(); // A panel to hold the search field and button
+//        String recipe = searchField.getText();
+        JPanel searchFieldPanel = new JPanel(); // A panel to hold the search field and butt// n
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String recipe = searchField.getText();
+                System.out.println(recipe);
+              try {
+                Connection c = database.getConnection();
+                Statement stmt = c.createStatement();
+                ResultSet rs;
+                rs = stmt.executeQuery("select * from dataset D where D.title like" + "'%" + recipe + "%'");
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int numCols = rsmd.getColumnCount();
+                while (rs.next()) {
+                    System.out.println(rs.getString("title"));
+                    
+                }
+              } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+              }
+            }
+        });
         searchFieldPanel.add(searchField);
-        searchFieldPanel.add(new JButton("Search"));
+        searchFieldPanel.add(searchButton);
 
         searchPanel.add(titleLabel, BorderLayout.NORTH); // Add the title label at the top of the search panel
         searchPanel.add(searchFieldPanel, BorderLayout.CENTER); // Add the search field and button below the title
@@ -90,4 +115,9 @@ public class Main {
         frame.setLocationRelativeTo(null); // Center the window
         frame.setVisible(true);
     }// of create method
+
+    public static void searchAction(String recipe){
+
+    }
+
 }//of class
