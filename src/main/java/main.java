@@ -1,17 +1,16 @@
-package com.recipeapplication;
-
 import javax.swing.*;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.mysql.cj.protocol.x.XProtocolRowInputStream;
-import com.recipeapplication.database;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.http.HttpResponse;
 import java.sql.*;
-public class Main {
-    private static com.recipeapplication.database database;
+
+
+public class main {
+    private static database database;
 
     private static void setupIngredientsTable() throws SQLException {
         Statement stmt = database.getConnection().createStatement();
@@ -48,7 +47,7 @@ public class Main {
             System.err.println("Failed to initialize FlatLaf Dark");
             throw new RuntimeException(e);
         }
-        SwingUtilities.invokeLater(Main::createAndShowGUI);
+        SwingUtilities.invokeLater(main::createAndShowGUI);
 
         database = new database();
 
@@ -80,20 +79,20 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 String recipe = searchField.getText();
                 System.out.println(recipe);
-              try {
-                Connection c = database.getConnection();
-                Statement stmt = c.createStatement();
-                ResultSet rs;
-                rs = stmt.executeQuery("select * from dataset D where D.title like" + "'%" + recipe + "%'");
-                ResultSetMetaData rsmd = rs.getMetaData();
-                int numCols = rsmd.getColumnCount();
-                while (rs.next()) {
-                    System.out.println(rs.getString("title"));
-                    
+                try {
+                    Connection c = database.getConnection();
+                    Statement stmt = c.createStatement();
+                    ResultSet rs;
+                    rs = stmt.executeQuery("select * from dataset D where D.title like" + "'%" + recipe + "%'");
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int numCols = rsmd.getColumnCount();
+                    while (rs.next()) {
+                        System.out.println(rs.getString("title"));
+
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
                 }
-              } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-              }
             }
         });
         searchFieldPanel.add(searchField);

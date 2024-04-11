@@ -1,5 +1,3 @@
-package com.recipeapplication;
-
 import java.sql.*;
 public class database {
 

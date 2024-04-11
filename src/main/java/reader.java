@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 
-public class Reader {
+public class reader {
 
     public static ArrayList<String> readList(String list) throws IOException {
         String filePath = new File("").getAbsolutePath();
@@ -16,5 +16,3 @@ public class Reader {
         return shoppingList;
     }
 }
-
-
