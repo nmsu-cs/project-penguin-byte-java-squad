@@ -7,10 +7,13 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.*;
 
 public class UI extends JFrame {
+    private static database database;
     public UI() {
         init();
+        database = new database();
     }
 
     private void recipeDetails(){
@@ -20,7 +23,7 @@ public class UI extends JFrame {
         nFrame.setLocationRelativeTo(this);
     }
 
-    private JButton row(){
+    private JButton row(String ttl){
         JButton row = new JButton();
         row.setLayout(new MigLayout("ins 0","[10%, grow][grow]","grow"));
         JLabel left = new JLabel();
@@ -30,7 +33,7 @@ public class UI extends JFrame {
         JPanel right = new JPanel();
         right.setLayout(new MigLayout("wrap","[][]","[][]"));
         JLabel title = new JLabel("Creamy Corn");
-        title.setText("<html><h3>Creamy Corn</h3></html>");
+        title.setText("<html><h3>"+ttl+"</h3></html>");
         right.add(title);
         right.add(new JLabel("Have"));
         right.add(new JLabel("Difficulty: 1-10/100"));
@@ -51,6 +54,7 @@ public class UI extends JFrame {
         row.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         row.addActionListener(rowClicked -> {
+            this.setContentPane(new JPanel());
             recipeDetails();
         });
         return row;
@@ -67,14 +71,43 @@ public class UI extends JFrame {
                 "[dark]background:lighten(@background,5%)");
         main.add(topBar,"grow,wrap");
 
+        JTextArea txtSearch = new JTextArea();
+        topBar.add(txtSearch);
+        JButton btnSearch = new JButton();
+        topBar.add(btnSearch);
+
         JPanel center = new JPanel();
         center.setLayout(new GridLayout(0,1));
+        btnSearch.addActionListener(search -> {
+            System.out.println("Search pressed.");
+            try {
+                Connection c = database.getConnection();
+                Statement stmt = c.createStatement();
+                ResultSet rs;
+                rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT 10");
+                System.out.println(rs);
+                ResultSetMetaData rsmd = rs.getMetaData();
+
+                System.out.println(rs.getFetchSize());
+                while (rs.next()) {
+                    center.add(row(rs.getString("title")));
+                }
+
+                center.revalidate();
+                center.repaint();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         JScrollPane scrollPane = new JScrollPane(center);
         scrollPane.setBorder(null);
 
-        for(int i = 0; i < 150; i++){
-            center.add(row());
-        }
+
+
+//        for(int i = 0; i < 150; i++){
+//            center.add(row(""));
+//        }
 
         main.add(scrollPane, "grow, wrap");
 
@@ -104,7 +137,7 @@ public class UI extends JFrame {
         UIManager.put("defaultFont",new Font(FlatRobotoFont.FAMILY, Font.PLAIN,13));
         UIManager.put("defaultBoldFont",new Font(FlatRobotoFont.FAMILY, Font.BOLD,16));
         FlatMacDarkLaf.setup();
-        UIManager.put("Table.alternateRowColor", new Color(128, 128, 128,30));
+//        UIManager.put("Table.alternateRowColor", new Color(128, 128, 128,30));
         EventQueue.invokeLater(() -> new UI().setVisible(true));
     }
 }
