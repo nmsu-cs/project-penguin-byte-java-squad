@@ -2,7 +2,9 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
+import net.miginfocom.layout.CC;
 import net.miginfocom.layout.Grid;
+import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -62,19 +64,29 @@ public class UI extends JFrame {
 
     private JPanel mainPain(){
         JPanel main = new JPanel();
-        main.setLayout(new MigLayout("wrap 1","[grow]","[10%, grow][80%, grow][10%, grow]"));
+        main.setLayout(new MigLayout("wrap 1","[grow]","[5%, grow][85%, grow][10%, grow]"));
 
         JPanel topBar = new JPanel();
+        topBar.setLayout(new MigLayout("","[80%, grow][20%, grow]",""));
         topBar.putClientProperty(FlatClientProperties.STYLE,"" +
                 "arc:10;" +
                 "[light]background:darken(@background,5%);" +
                 "[dark]background:lighten(@background,5%)");
         main.add(topBar,"grow,wrap");
 
-        JTextArea txtSearch = new JTextArea();
-        topBar.add(txtSearch);
+        PlaceholderTextField txtSearch = new PlaceholderTextField();
+        txtSearch.setPlaceholder("Title / Ingredients");
+        txtSearch.putClientProperty(FlatClientProperties.STYLE,"" +
+                "arc:10;" +
+                "[light]background:darken(@background,5%);" +
+                "[dark]background:lighten(@background,5%);" +
+
+                "focusWidth:0;"+
+                "innerFocusWidth:0");
+        topBar.add(txtSearch,"grow");
         JButton btnSearch = new JButton();
-        topBar.add(btnSearch);
+        btnSearch.setText("Search");
+        topBar.add(btnSearch,"grow");
 
         JPanel center = new JPanel();
         center.setLayout(new GridLayout(0,1));
@@ -104,11 +116,6 @@ public class UI extends JFrame {
         scrollPane.setBorder(null);
 
 
-
-//        for(int i = 0; i < 150; i++){
-//            center.add(row(""));
-//        }
-
         main.add(scrollPane, "grow, wrap");
 
         JPanel bottomPanel = new JPanel();
@@ -117,6 +124,14 @@ public class UI extends JFrame {
                 "[light]background:darken(@background,5%);" +
                 "[dark]background:lighten(@background,5%)");
         main.add(bottomPanel,"grow");
+
+
+        MigLayout layout = new MigLayout("","[20%][20%, grow][20%, grow][20%, grow][20%]","grow");
+        bottomPanel.setLayout(layout);
+
+        bottomPanel.add(new BottomButton(),"skip, grow");
+        bottomPanel.add(new BottomButton(),"grow");
+        bottomPanel.add(new BottomButton(),"grow");
         return main;
     }
 
