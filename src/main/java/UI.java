@@ -10,6 +10,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class UI extends JFrame {
     private static database database;
@@ -25,7 +26,7 @@ public class UI extends JFrame {
         nFrame.setLocationRelativeTo(this);
     }
 
-    private JButton row(String ttl){
+    private JButton row(Recipe rp){
         JButton row = new JButton();
         row.setLayout(new MigLayout("ins 0","[10%, grow][grow]","grow"));
         JLabel left = new JLabel();
@@ -35,7 +36,7 @@ public class UI extends JFrame {
         JPanel right = new JPanel();
         right.setLayout(new MigLayout("wrap","[][]","[][]"));
         JLabel title = new JLabel("Creamy Corn");
-        title.setText("<html><h3>"+ttl+"</h3></html>");
+        title.setText("<html><h3>"+rp.getTitle()+"</h3></html>");
         right.add(title);
         right.add(new JLabel("Have"));
         right.add(new JLabel("Difficulty: 1-10/100"));
@@ -74,6 +75,9 @@ public class UI extends JFrame {
                 "[dark]background:lighten(@background,5%)");
         main.add(topBar,"grow,wrap");
 
+        JLabel tField = new JLabel("Cooking Companion, Title search");
+        topBar.add(tField,"wrap");
+
         PlaceholderTextField txtSearch = new PlaceholderTextField();
         txtSearch.setPlaceholder("Title / Ingredients");
         txtSearch.putClientProperty(FlatClientProperties.STYLE,"" +
@@ -97,13 +101,18 @@ public class UI extends JFrame {
                 Statement stmt = c.createStatement();
                 ResultSet rs;
                 rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT 10");
-                System.out.println(rs);
-                ResultSetMetaData rsmd = rs.getMetaData();
+//                ResultSetMetaData rsmd = rs.getMetaData();
+                ArrayList<Recipe> recipes = Recipe.getList(rs);
 
-                System.out.println(rs.getFetchSize());
-                while (rs.next()) {
-                    center.add(row(rs.getString("title")));
+                for (Recipe rp : recipes){
+                    center.add(row(rp));
                 }
+
+//                while (rs.next()) {
+//                    //center.add(row(rs.getString("title")));
+//                    Recipe rp = new Recipe(rs.getInt("id"),rs.get);
+//                    center.add(row(rp));
+//                }
 
                 center.revalidate();
                 center.repaint();
