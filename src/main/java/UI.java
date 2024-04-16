@@ -28,19 +28,25 @@ public class UI extends JFrame {
 
     private JButton row(Recipe rp){
         JButton row = new JButton();
-        row.setLayout(new MigLayout("ins 0","[10%, grow][grow]","grow"));
+        row.setLayout(new MigLayout("ins 0","[]","[]"));
         JLabel left = new JLabel();
         int widHei = 60;
         left.setIcon(new ImageIcon(new ImageIcon("NMSU_NoU-Crimson.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_DEFAULT)));
 
         JPanel right = new JPanel();
-        right.setLayout(new MigLayout("wrap","[][]","[][]"));
+        right.setLayout(new MigLayout("wrap","[60%, grow][]","[][]"));
         JLabel title = new JLabel("Creamy Corn");
-        title.setText("<html><h3>"+rp.getTitle()+"</h3></html>");
+
+        title.setText("<html><h3 style='max-width: 200px;'>"+rp.getTitle()+"</h3></html>");
+//        title.setMaximumSize(new Dimension((row.getWidth()-60)/2,Integer.MIN_VALUE));
+
+
         right.add(title);
-        right.add(new JLabel("Have"));
+        right.add(new JLabel("Have"),"wrap");
         right.add(new JLabel("Difficulty: 1-10/100"));
         right.add(new JLabel("cookbook.org"));
+
+
 
         right.setOpaque(false);
 
@@ -65,7 +71,7 @@ public class UI extends JFrame {
 
     private JPanel mainPain(){
         JPanel main = new JPanel();
-        main.setLayout(new MigLayout("wrap 1","[grow]","[5%, grow][85%, grow][10%, grow]"));
+        main.setLayout(new MigLayout("wrap 1","[100%]","[5%, grow][85%, grow][10%, grow]"));
 
         JPanel topBar = new JPanel();
         topBar.setLayout(new MigLayout("","[80%, grow][20%, grow]",""));
@@ -93,14 +99,15 @@ public class UI extends JFrame {
         topBar.add(btnSearch,"grow");
 
         JPanel center = new JPanel();
-        center.setLayout(new GridLayout(0,1));
+        center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
             try {
+                center.removeAll();
                 Connection c = database.getConnection();
                 Statement stmt = c.createStatement();
                 ResultSet rs;
-                rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT 10");
+                rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT 50");
 //                ResultSetMetaData rsmd = rs.getMetaData();
                 ArrayList<Recipe> recipes = Recipe.getList(rs);
 
@@ -121,7 +128,8 @@ public class UI extends JFrame {
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane(center);
+        JScrollPane scrollPane = new JScrollPane(center,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(null);
 
 
@@ -137,6 +145,7 @@ public class UI extends JFrame {
 
         MigLayout layout = new MigLayout("","[20%][20%, grow][20%, grow][20%, grow][20%]","grow");
         bottomPanel.setLayout(layout);
+
 
         bottomPanel.add(new BottomButton(),"skip, grow");
         bottomPanel.add(new BottomButton(),"grow");
