@@ -2,13 +2,12 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
-import net.miginfocom.layout.CC;
-import net.miginfocom.layout.Grid;
-import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -69,7 +68,7 @@ public class UI extends JFrame {
         return row;
     }
 
-    private JPanel mainPain(){
+    private JPanel mainPane(){
         JPanel main = new JPanel();
         main.setLayout(new MigLayout("wrap 1","[100%]","[5%, grow][85%, grow][10%, grow]"));
 
@@ -147,7 +146,16 @@ public class UI extends JFrame {
         bottomPanel.setLayout(layout);
 
 
-        bottomPanel.add(new BottomButton(),"skip, grow");
+        BottomButton importButton = new BottomButton();
+        importButton.setText("Import ingredient file");
+        importButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.showOpenDialog(null);
+            }
+        });
+        bottomPanel.add(importButton,"skip, grow");
         bottomPanel.add(new BottomButton(),"grow");
         bottomPanel.add(new BottomButton(),"grow");
         return main;
@@ -160,7 +168,7 @@ public class UI extends JFrame {
         setSize(new Dimension(375, 812));
         setResizable(false);
         setLocationRelativeTo(null);
-        setContentPane(mainPain());
+        setContentPane(mainPane());
 
     }
 

@@ -13,4 +13,3 @@ public class RecipeButton extends JButton {
     }
 
 }
-.
