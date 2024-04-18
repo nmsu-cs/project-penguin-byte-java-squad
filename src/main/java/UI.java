@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -152,7 +154,16 @@ public class UI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.showOpenDialog(null);
+                int returnVal = fileChooser.showOpenDialog(null);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        System.out.println(reader.readList(file));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
         bottomPanel.add(importButton,"skip, grow");

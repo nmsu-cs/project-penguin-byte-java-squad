@@ -4,7 +4,6 @@ public class RecipeButton extends JButton {
     private Recipe recipe = null;
 
     public RecipeButton(Recipe recipe) {
-        super(recipe.getTitle());
         this.recipe = recipe;
     }
 
