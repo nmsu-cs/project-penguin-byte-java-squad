@@ -9,16 +9,10 @@ import java.awt.*;
 public class RecipeButton extends JButton {
     private Recipe recipe = null;
 
+
     public RecipeButton(Recipe recipe) {
         this.recipe = recipe;
-    }
-
-    public Recipe getRecipe() {
-        return this.recipe;
-    }
-
-    private JButton row(Recipe rp) {
-        this.setLayout(new MigLayout("ins 0","[10%, grow][grow]","grow"));
+        this.setLayout(new MigLayout("ins 0","[]","[]"));
         JLabel left = new JLabel();
         int widHei = 60;
         left.setIcon(new ImageIcon(new ImageIcon("recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
@@ -26,7 +20,11 @@ public class RecipeButton extends JButton {
         JPanel right = new JPanel();
         right.setLayout(new MigLayout("wrap","[][]","[][]"));
         JLabel title = new JLabel("Creamy Corn");
-        title.setText("<html><h3>"+rp.getTitle()+"</h3></html>");
+
+
+        title.setText("<html><h3 style='max-width: 200px;'>"+recipe.getTitle()+"</h3></html>");
+
+
         right.add(title);
         right.add(new JLabel("Have"));
         right.add(new JLabel("Difficulty: 1-10/100"));
@@ -49,15 +47,42 @@ public class RecipeButton extends JButton {
 
         JPanel panel = new JPanel();
         this.addActionListener(rowClicked -> {
-            recipeDetails(this.getRecipe());
+            recipeDetails();
         });
+    }
+
+    public Recipe getRecipe() {
+        return this.recipe;
+    }
+
+    private JButton row(Recipe rp) {
+
 
         return this;
 
     }
 
-    private void recipeDetails(Recipe rp) {
+    private void recipeDetails() {
+        Recipe rp = this.recipe;
+        JFrame nFrame = new JFrame("Recipe Details");
+        nFrame.setSize(300,200);
+        nFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        nFrame.pack();
+        nFrame.setLocationRelativeTo(this);
 
+        JTextArea recipeDetails = new JTextArea();
+        String [] instructions = rp.getInstructions();
+        StringBuilder detailsBuilder = new StringBuilder();
+
+        for(String instruction : instructions) {
+            detailsBuilder.append(instruction.trim()).append("\n");
+        }
+        recipeDetails.setText("Title: " + rp.getTitle() + "\n"
+                + "Instructions: " + detailsBuilder.toString() +
+                "Link: " + rp.getLink() + "\n");
+        JScrollPane detailsScroll = new JScrollPane(recipeDetails);
+        nFrame.add(detailsScroll);
+        nFrame.setVisible(true);
     }
 
 
