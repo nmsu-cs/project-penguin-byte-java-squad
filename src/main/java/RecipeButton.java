@@ -66,26 +66,38 @@ public class RecipeButton extends JButton {
     private void recipeDetails() {
         Recipe rp = this.recipe;
         JFrame nFrame = new JFrame("Recipe Details");
-        nFrame.setSize(300,200);
+        nFrame.setSize(325,612);
         //nFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        nFrame.pack();
-        nFrame.setLocationRelativeTo(this);
+        nFrame.setLocationRelativeTo(null);
 
         JTextArea recipeDetails = new JTextArea();
         String [] instructions = rp.getInstructions();
+        String [] ingredients = rp.getIngredients();
         StringBuilder detailsBuilder = new StringBuilder();
+        StringBuilder ingredBuilder = new StringBuilder();
 
         for(String instruction : instructions) {
             detailsBuilder.append(instruction.trim()).append("\n");
         }
-        recipeDetails.setText("Title: " + rp.getTitle() + "\n"
-                + "Instructions: " + detailsBuilder.toString() +
+        for(String ingredient : ingredients) {
+            ingredBuilder.append(ingredient.trim()).append("\n");
+        }
+        String ing = ingredBuilder.toString();
+        ing = ing.replaceAll("u00b0", "\u00b0");
+        ing = ing.replaceAll("\"", "");
+        ing = ing.replaceAll("\\]", "");
+        ing = ing.replaceAll("\\[", "");
+        String ins = detailsBuilder.toString();
+        ins = ins.replaceAll("u00b0", "\u00b0");
+        ins = ins.replaceAll("\"", "");
+        ins = ins.replaceAll("\\]", "");
+        ins = ins.replaceAll("\\[", "");
+        recipeDetails.setText("Title: " + rp.getTitle() + "\nIngredients: \n" + ing
+                + "Instructions: \n" + ins +
                 "Link: " + rp.getLink() + "\n");
         JScrollPane detailsScroll = new JScrollPane(recipeDetails);
         nFrame.add(detailsScroll);
         nFrame.setVisible(true);
     }
-
-
-
 }
