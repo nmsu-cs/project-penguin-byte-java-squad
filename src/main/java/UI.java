@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UI extends JFrame {
     private static database database;
@@ -20,19 +21,36 @@ public class UI extends JFrame {
         database = new database();
     }
 
-    private void recipeDetails(){
-        JFrame nFrame = new JFrame();
-        nFrame.pack();
-        nFrame.setVisible(true);
+    private void recipeDetails(Recipe rp){
+        JFrame nFrame = new JFrame("Recipe Details");
+        nFrame.setSize(300,200);
+        nFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        nFrame.pack();
         nFrame.setLocationRelativeTo(this);
+
+        JTextArea recipeDetails = new JTextArea();
+        String [] instructions = rp.getInstructions();
+        StringBuilder detailsBuilder = new StringBuilder();
+
+        for(String instruction : instructions) {
+            detailsBuilder.append(instruction.trim()).append("\n");
+        }
+        recipeDetails.setText("Title: " + rp.getTitle() + "\n"
+                + "Instructions: " + detailsBuilder.toString() +
+                "Link: " + rp.getLink() + "\n");
+        JScrollPane detailsScroll = new JScrollPane(recipeDetails);
+        nFrame.add(detailsScroll);
+        nFrame.setVisible(true);
     }
+
+
 
     private JButton row(Recipe rp){
         JButton row = new JButton();
         row.setLayout(new MigLayout("ins 0","[]","[]"));
         JLabel left = new JLabel();
         int widHei = 60;
-        left.setIcon(new ImageIcon(new ImageIcon("NMSU_NoU-Crimson.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_DEFAULT)));
+        left.setIcon(new ImageIcon(new ImageIcon("recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
 
         JPanel right = new JPanel();
         right.setLayout(new MigLayout("wrap","[60%, grow][]","[][]"));
@@ -65,7 +83,7 @@ public class UI extends JFrame {
 
         row.addActionListener(rowClicked -> {
             this.setContentPane(new JPanel());
-            recipeDetails();
+            recipeDetails(rp);
         });
         return row;
     }
@@ -132,6 +150,9 @@ public class UI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(center,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(null);
+        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+        verticalScrollBar.setBlockIncrement(150);
+        verticalScrollBar.setUnitIncrement(10);
 
 
         main.add(scrollPane, "grow, wrap");
@@ -174,7 +195,7 @@ public class UI extends JFrame {
 
     private void init(){
         setTitle("Cooking Companion");
-        setIconImage(new ImageIcon("logo.png").getImage());
+        setIconImage(new ImageIcon("logo.png").getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(new Dimension(375, 812));
         setResizable(false);
