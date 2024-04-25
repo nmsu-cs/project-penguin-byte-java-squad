@@ -16,14 +16,63 @@ import java.util.Arrays;
 
 public class UI extends JFrame {
     private static database database;
+    private int paginationCurrent = 0;
+    private int pagination_Increments = 10; // Changes the limit by.
     public UI() {
         init();
         database = new database();
     }
 
+    private JPanel center;
+    private PlaceholderTextField txtSearch;
+
+
+    private void searchFunction(){
+        try {
+            center.removeAll();
+            Connection c = database.getConnection();
+            Statement stmt = c.createStatement();
+            ResultSet rs;
+            rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT "+pagination_Increments+" OFFSET "+paginationCurrent);
+//                ResultSetMetaData rsmd = rs.getMetaData();
+            ArrayList<Recipe> recipes = Recipe.getList(rs);
+
+            for (Recipe rp : recipes){
+                center.add(new RecipeButton(rp));
+            }
+
+            JPanel pagination = new JPanel();
+            pagination.setLayout(new MigLayout("","[25%][25%][]",""));
+            JButton prev = new JButton("Prev.");
+            JButton next = new JButton("Next");
+            pagination.add(prev,"skip, grow");
+            pagination.add(next,"grow");
+            JLabel pageNumber = new JLabel(paginationCurrent+"/"+pagination_Increments);
+            pagination.add(pageNumber);
+
+            prev.addActionListener(previous -> {
+                if (paginationCurrent >= pagination_Increments){
+                    paginationCurrent-=pagination_Increments;
+                    searchFunction();
+                }
+            });
+            next.addActionListener(nextPage -> {
+                paginationCurrent+=pagination_Increments;
+                searchFunction();
+            });
+
+            center.add(pagination);
+
+            center.revalidate();
+            center.repaint();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private JPanel mainPane(){
         JPanel main = new JPanel();
-        main.setLayout(new MigLayout("wrap 1","[100%]","[5%, grow][85%, grow][10%, grow]"));
+        main.setLayout(new MigLayout("wrap 1","[100%]","[7%, grow][83%, grow][10%, grow]"));
 
         JPanel topBar = new JPanel();
         topBar.setLayout(new MigLayout("","[80%, grow][20%, grow]",""));
@@ -36,7 +85,8 @@ public class UI extends JFrame {
         JLabel tField = new JLabel("Cooking Companion, Title search");
         topBar.add(tField,"wrap");
 
-        PlaceholderTextField txtSearch = new PlaceholderTextField();
+
+        txtSearch = new PlaceholderTextField();
         txtSearch.setPlaceholder("Title / Ingredients");
         txtSearch.putClientProperty(FlatClientProperties.STYLE,"" +
                 "arc:10;" +
@@ -48,36 +98,20 @@ public class UI extends JFrame {
         topBar.add(txtSearch,"grow");
         JButton btnSearch = new JButton();
         btnSearch.setText("Search");
-        topBar.add(btnSearch,"grow");
+        topBar.add(btnSearch,"grow, wrap");
 
-        JPanel center = new JPanel();
+        JCheckBox andrew1 = new JCheckBox("Diary");
+        JCheckBox andrew2 = new JCheckBox("Nuts");
+        JCheckBox andrew3 = new JCheckBox("?");
+        topBar.add(andrew1,"grow");
+        topBar.add(andrew2,"grow");
+        topBar.add(andrew3,"grow");
+
+        center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
-            try {
-                center.removeAll();
-                Connection c = database.getConnection();
-                Statement stmt = c.createStatement();
-                ResultSet rs;
-                rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT 50");
-//                ResultSetMetaData rsmd = rs.getMetaData();
-                ArrayList<Recipe> recipes = Recipe.getList(rs);
-
-                for (Recipe rp : recipes){
-                    center.add(new RecipeButton(rp));
-                }
-
-//                while (rs.next()) {
-//                    //center.add(row(rs.getString("title")));
-//                    Recipe rp = new Recipe(rs.getInt("id"),rs.get);
-//                    center.add(row(rp));
-//                }
-
-                center.revalidate();
-                center.repaint();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            searchFunction();
         });
 
         JScrollPane scrollPane = new JScrollPane(center,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,

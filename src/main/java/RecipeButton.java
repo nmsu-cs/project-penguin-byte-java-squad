@@ -18,17 +18,18 @@ public class RecipeButton extends JButton {
         left.setIcon(new ImageIcon(new ImageIcon("recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
 
         JPanel right = new JPanel();
-        right.setLayout(new MigLayout("wrap","[][]","[][]"));
+        right.setLayout(new MigLayout("wrap","[50%, grow][]","[][]"));
         JLabel title = new JLabel("Creamy Corn");
 
 
         title.setText("<html><h3 style='max-width: 200px;'>"+recipe.getTitle()+"</h3></html>");
 
+        System.out.println(recipe);
 
         right.add(title);
-        right.add(new JLabel("Have"));
-        right.add(new JLabel("Difficulty: 1-10/100"));
-        right.add(new JLabel("cookbook.org"));
+        right.add(new JLabel("UID: "+recipe.getID()));
+        right.add(new JLabel("Difficulty: "+recipe.getIngredients().length));
+        right.add(new JLabel(recipe.getLink().split("/")[0]));
 
         right.setOpaque(false);
 
@@ -66,7 +67,7 @@ public class RecipeButton extends JButton {
         Recipe rp = this.recipe;
         JFrame nFrame = new JFrame("Recipe Details");
         nFrame.setSize(300,200);
-        nFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //nFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        nFrame.pack();
         nFrame.setLocationRelativeTo(this);
 
