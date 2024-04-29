@@ -26,7 +26,8 @@ public class UI extends JFrame {
     private JPanel center;
     private PlaceholderTextField txtSearch;
 
-
+    private boolean nut;
+    private boolean dairy;
     private void searchFunction(){
         try {
             center.removeAll();
@@ -35,7 +36,7 @@ public class UI extends JFrame {
             ResultSet rs;
             rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT "+pagination_Increments+" OFFSET "+paginationCurrent);
 //                ResultSetMetaData rsmd = rs.getMetaData();
-            ArrayList<Recipe> recipes = Recipe.getList(rs);
+            ArrayList<Recipe> recipes = Recipe.getList(rs, dairy, nut);
 
             for (Recipe rp : recipes){
                 center.add(new RecipeButton(rp));
@@ -104,8 +105,10 @@ public class UI extends JFrame {
         btnSearch.setText("Search");
         topBar.add(btnSearch,"grow, wrap");
 
-        JCheckBox andrew1 = new JCheckBox("Diary");
-        JCheckBox andrew2 = new JCheckBox("Nuts");
+        JCheckBox andrew1 = new JCheckBox("Dairy-Free");
+
+        JCheckBox andrew2 = new JCheckBox("Nut-Free");
+
         JCheckBox andrew3 = new JCheckBox("?");
         topBar.add(andrew1,"grow");
         topBar.add(andrew2,"grow");
@@ -113,6 +116,20 @@ public class UI extends JFrame {
 
         center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
+        andrew2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (andrew2.isSelected()) {nut = true; System.out.println("Nut pressed on");}
+                if (!andrew2.isSelected()) {nut = false; System.out.println("Nut pressed off");}
+            }
+        });
+        andrew1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (andrew1.isSelected()) {dairy = true; System.out.println("Dairy pressed on");}
+                if (!andrew1.isSelected()) {dairy = false; System.out.println("Dairy pressed off");}
+            }
+        });
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
             searchFunction();
