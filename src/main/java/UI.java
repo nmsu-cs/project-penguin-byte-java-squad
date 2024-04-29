@@ -67,6 +67,10 @@ public class UI extends JFrame {
             center.repaint();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -162,6 +166,7 @@ public class UI extends JFrame {
 
     private void init(){
         setTitle("Cooking Companion");
+
         setIconImage(new ImageIcon("logo.png").getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(new Dimension(375, 812));

@@ -5,17 +5,29 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 public class RecipeButton extends JButton {
     private Recipe recipe = null;
 
 
-    public RecipeButton(Recipe recipe) {
+    public RecipeButton(Recipe recipe) throws IOException, InterruptedException {
         this.recipe = recipe;
         this.setLayout(new MigLayout("ins 0","[]","[]"));
         JLabel left = new JLabel();
         int widHei = 60;
-        left.setIcon(new ImageIcon(new ImageIcon("recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
+
+        String filePath = "images/"+recipe.getTitle()+".png";
+        File file = new File(filePath);
+        if (file.exists()) {
+            left.setIcon(new ImageIcon(new ImageIcon("images/"+recipe.getTitle().replace(",", "").replace("\"","")+".png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
+        } else {
+            // Generate one.
+            left.setIcon(new ImageIcon(new ImageIcon("images/"+OpenAIRequest.getOpenAI_Image(recipe.getTitle())).getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
+        }
+
+        //left.setIcon(new ImageIcon(new ImageIcon("recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
 
         JPanel right = new JPanel();
         right.setLayout(new MigLayout("wrap","[50%, grow][]","[][]"));
