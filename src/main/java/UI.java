@@ -18,6 +18,7 @@ public class UI extends JFrame {
     private static database database;
     private int paginationCurrent = 0;
     private int pagination_Increments = 10; // Changes the limit by.
+    private boolean importDataSearch = false;
     public UI() {
         init();
         database = new database();
@@ -28,6 +29,49 @@ public class UI extends JFrame {
 
     private boolean nut;
     private boolean dairy;
+
+
+
+    private void afterSearchFunctions(ResultSet rs,String adSearch) throws IOException, InterruptedException, SQLException {
+        ArrayList<Recipe> recipes = Recipe.getList(rs, dairy, nut);
+
+        for (Recipe rp : recipes){
+            center.add(new RecipeButton(rp));
+        }
+
+        JPanel pagination = new JPanel();
+        pagination.setLayout(new MigLayout("","[25%][25%][]",""));
+        JButton prev = new JButton("Prev.");
+        JButton next = new JButton("Next");
+        pagination.add(prev,"skip, grow");
+        pagination.add(next,"grow");
+        JLabel pageNumber = new JLabel(paginationCurrent+"/"+pagination_Increments);
+        pagination.add(pageNumber);
+
+        prev.addActionListener(previous -> {
+            if (paginationCurrent >= pagination_Increments){
+                paginationCurrent-=pagination_Increments;
+                if(adSearch == null) {
+                    searchFunction();
+                }else{
+                    searchFunctionV2();
+                }
+            }
+        });
+        next.addActionListener(nextPage -> {
+            paginationCurrent+=pagination_Increments;
+            if(adSearch == null) {
+                searchFunction();
+            }else{
+                searchFunctionV2();
+            }
+        });
+
+        center.add(pagination);
+
+        center.revalidate();
+        center.repaint();
+    }
     private void searchFunction(){
         try {
             center.removeAll();
@@ -36,36 +80,7 @@ public class UI extends JFrame {
             ResultSet rs;
             rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT "+pagination_Increments+" OFFSET "+paginationCurrent);
 //                ResultSetMetaData rsmd = rs.getMetaData();
-            ArrayList<Recipe> recipes = Recipe.getList(rs, dairy, nut);
-
-            for (Recipe rp : recipes){
-                center.add(new RecipeButton(rp));
-            }
-
-            JPanel pagination = new JPanel();
-            pagination.setLayout(new MigLayout("","[25%][25%][]",""));
-            JButton prev = new JButton("Prev.");
-            JButton next = new JButton("Next");
-            pagination.add(prev,"skip, grow");
-            pagination.add(next,"grow");
-            JLabel pageNumber = new JLabel(paginationCurrent+"/"+pagination_Increments);
-            pagination.add(pageNumber);
-
-            prev.addActionListener(previous -> {
-                if (paginationCurrent >= pagination_Increments){
-                    paginationCurrent-=pagination_Increments;
-                    searchFunction();
-                }
-            });
-            next.addActionListener(nextPage -> {
-                paginationCurrent+=pagination_Increments;
-                searchFunction();
-            });
-
-            center.add(pagination);
-
-            center.revalidate();
-            center.repaint();
+            afterSearchFunctions(rs,null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -75,8 +90,9 @@ public class UI extends JFrame {
         }
     }
 
-    private void searchFunctionV2(String importedPantry) {
+    private void searchFunctionV2() {
         try {
+            String importedPantry = "";
             center.removeAll();
             Connection c = database.getConnection();
             Statement stmt = c.createStatement();
@@ -91,7 +107,12 @@ public class UI extends JFrame {
                                                     "where E.ingredient_name in (" + importedPantry + ") " +
                                                     "group by E.id) as T2 " +
                                         "where T1.id = T2.id and T1.totalIngredients = T2.total)");
+            afterSearchFunctions(rs,importedPantry);
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -130,10 +151,10 @@ public class UI extends JFrame {
 
         JCheckBox andrew2 = new JCheckBox("Nut-Free");
 
-        JCheckBox andrew3 = new JCheckBox("?");
+        JCheckBox jackStoleThis = new JCheckBox("?");
         topBar.add(andrew1,"grow");
         topBar.add(andrew2,"grow");
-        topBar.add(andrew3,"grow");
+        topBar.add(jackStoleThis,"grow");
 
         center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
@@ -151,9 +172,17 @@ public class UI extends JFrame {
                 if (!andrew1.isSelected()) {dairy = false; System.out.println("Dairy pressed off");}
             }
         });
+
+        jackStoleThis.addActionListener(g -> {
+            importDataSearch = jackStoleThis.isSelected();
+        });
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
-            searchFunction();
+            if(importDataSearch){
+                searchFunctionV2();
+            }else{
+                searchFunction();
+            }
         });
 
         JScrollPane scrollPane = new JScrollPane(center,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -188,12 +217,12 @@ public class UI extends JFrame {
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
-                    try {
-                        ArrayList<String> importedPantry = reader.readList(file);
-                        System.out.println(reader.toString(importedPantry));
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+//                    try {
+////                        reader.readList(file);
+////                        System.out.println(reader.toString());
+//                    } catch (IOException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
                 }
             }
         });

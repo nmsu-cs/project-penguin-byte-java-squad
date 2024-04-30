@@ -68,6 +68,22 @@ public class Recipe{
         return table;
     }
 
+    public static ArrayList<Recipe> getList(ResultSet rs) throws SQLException{
+        ArrayList<Recipe> table = new ArrayList<Recipe>();
+        String[] ingredients = null;
+        String[] instructions = null;
+        String[] NER = null;
+        while(rs.next()){
+            ingredients = rs.getString("ingredients").split(",");
+
+            instructions = rs.getString("directions").split(",");
+            NER = rs.getString("NER").split(",");
+            Recipe curr = new Recipe(rs.getInt("id"), rs.getString("title"), ingredients, instructions, rs.getString("link"), NER);
+            table.add(curr);
+        }
+        return table;
+    }
+
     public static void printRecipe(Recipe r){
         System.out.println(r.title);
         System.out.println("  id: " + r.id);
