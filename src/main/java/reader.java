@@ -15,4 +15,16 @@ public class reader {
         }
         return shoppingList;
     }
+
+    public static String toString(ArrayList<String> list) {
+        StringBuilder listString = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+                listString.append("'").append(list.get(i)).append("'");
+            } else {
+                listString.append("'").append(list.get(i)).append("',");
+            }
+        }
+        return listString.toString();
+    }
 }

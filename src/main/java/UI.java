@@ -75,6 +75,27 @@ public class UI extends JFrame {
         }
     }
 
+    private void searchFunctionV2(String importedPantry) {
+        try {
+            center.removeAll();
+            Connection c = database.getConnection();
+            Statement stmt = c.createStatement();
+            ResultSet rs;
+            rs = stmt.executeQuery("select * from dataset D where D.id in " +
+                                        "(select T1.id" +
+                                        "from (select I.id, count(*) as totalIngredients " +
+                                                "from ingredients I " +
+                                                "group by I.id) as T1, " +
+                                                "(select id, count(*) as total " +
+                                                    "from ingredients E " +
+                                                    "where E.ingredient_name in (" + importedPantry + ") " +
+                                                    "group by E.id) as T2 " +
+                                        "where T1.id = T2.id and T1.totalIngredients = T2.total)");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private JPanel mainPane(){
         JPanel main = new JPanel();
         main.setLayout(new MigLayout("wrap 1","[100%]","[7%, grow][83%, grow][10%, grow]"));
@@ -168,7 +189,8 @@ public class UI extends JFrame {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
                     try {
-                        System.out.println(reader.readList(file));
+                        ArrayList<String> importedPantry = reader.readList(file);
+                        System.out.println(reader.toString(importedPantry));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
