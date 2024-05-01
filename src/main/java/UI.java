@@ -119,37 +119,45 @@ public class UI extends JFrame {
             Statement stmt = c.createStatement();
             ResultSet rs;
             String SQL_Query = "select * from dataset D where D.id in " +
-                    "(select T1.id" +
+                    "(select T1.id " +
                     "from (select I.id, count(*) as totalIngredients " +
                     "from ingredients I " +
                     "group by I.id) as T1, " +
-                    "(select id, count(*) as total " +
+                    "(select E.id, count(*) as total " +
                     "from ingredients E " +
                     "where E.ingredient_name in (" + importedPantry + ") " +
                     "group by E.id) as T2 " +
                     "where T1.id = T2.id and T1.totalIngredients = T2.total)";
 
             if(dairy || nut){
-                SQL_Query+="WHERE ";
+                SQL_Query+=" WHERE ";
             }
             if(jackStoleThis.isSelected()){
                 if(!(dairy||nut)){
-                    SQL_Query+="WHERE ";
+                    SQL_Query+=" WHERE ";
                 }
                 SQL_Query+="title LIKE \"%"+txtSearch.getText()+"%\"";
             }
             if (dairy) {
-                SQL_Query += " and ingredients NOT LIKE \"%milk%\""+
+                if(jackStoleThis.isSelected()){
+                    SQL_Query += " and ";
+                }
+                SQL_Query += "ingredients NOT LIKE \"%milk%\""+
                         " and ingredients NOT LIKE \"%butter%\""+
                         " and ingredients NOT LIKE \"%cheese%\""+
                         " and ingredients NOT LIKE \"%cream%\""+
                         " and ingredients NOT LIKE \"%yogurt%\"";
             }
             if (nut) {
-                for (int i = 0; i < nutList.length; i++) {
+                if(dairy||jackStoleThis.isSelected()){
+                    SQL_Query += " and ";
+                }
+                SQL_Query += "ingredients NOT LIKE \"%" + nutList[0] + "%\"";
+                for (int i = 1; i < nutList.length; i++) {
                     SQL_Query += " and ingredients NOT LIKE \"%" + nutList[i] + "%\"";
                 }
             }
+            System.out.println(SQL_Query);
             rs = stmt.executeQuery(SQL_Query);
             afterSearchFunctions(rs,importedPantry);
         } catch (SQLException e) {
