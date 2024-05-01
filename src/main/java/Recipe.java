@@ -38,28 +38,13 @@ public class Recipe{
         return NER;
     }
 
-    public static ArrayList<Recipe> getList(ResultSet rs, boolean dairy, boolean nut) throws SQLException{
+    public static ArrayList<Recipe> getList(ResultSet rs) throws SQLException{
         ArrayList<Recipe> table = new ArrayList<Recipe>();
         String[] ingredients = null;
         String[] instructions = null;
         String[] NER = null;
         while(rs.next()){
             ingredients = rs.getString("ingredients").split(",");
-            // ingredients check for bool here
-            if (dairy == true || nut == true) {
-                String[] badList = {"milk", "butter", "cheese", "cream", "yogurt"};
-                boolean hasBad = false;
-                for (int i = 0; i < ingredients.length; i++) {
-                    for (int j = 0; j < badList.length; j++) {
-                        if (ingredients[i].contains(badList[j])) {
-                            hasBad = true;
-                        }
-                    }
-                }
-                if (hasBad == true) {
-                    continue;
-                }
-            }
             instructions = rs.getString("directions").split(",");
             NER = rs.getString("NER").split(",");
             Recipe curr = new Recipe(rs.getInt("id"), rs.getString("title"), ingredients, instructions, rs.getString("link"), NER);
