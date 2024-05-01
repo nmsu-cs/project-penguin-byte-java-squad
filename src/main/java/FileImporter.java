@@ -1,8 +1,37 @@
 import java.io.*;
 import java.util.ArrayList;
 
-public class reader {
-    public static ArrayList<String> shoppingList = new ArrayList<>();
+public class FileImporter {
+
+    private ArrayList<String> pantry;
+
+    public FileImporter(File userFile) throws IOException {
+        pantry = new ArrayList<>();
+
+        String filePath = userFile.getAbsolutePath();
+        BufferedReader br = new BufferedReader(new FileReader(filePath));
+
+        String line;
+        while((line = br.readLine()) != null) {
+            pantry.add(line);
+        }
+    }
+
+    public String pantryToString() {
+        StringBuilder listString = new StringBuilder();
+        for (int i = 0; i < pantry.size(); i++) {
+            if (i == pantry.size() - 1) {
+                listString.append("'").append(pantry.get(i)).append("'");
+            } else {
+                listString.append("'").append(pantry.get(i)).append("',");
+            }
+        }
+        return listString.toString();
+    }
+
+    public ArrayList<String> getPantry() {
+        return pantry;
+    }
 
     /*public static ArrayList<String> readList(File list) throws IOException {
         String filePath = list.getAbsolutePath();

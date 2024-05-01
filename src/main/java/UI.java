@@ -59,7 +59,7 @@ public class UI extends JFrame {
                 if(adSearch == null) {
                     searchFunction();
                 }else{
-                    searchFunctionV2();
+                    searchFunctionV2(adSearch);
                 }
             }
         });
@@ -68,7 +68,7 @@ public class UI extends JFrame {
             if(adSearch == null) {
                 searchFunction();
             }else{
-                searchFunctionV2();
+                searchFunctionV2(adSearch);
             }
         });
 
@@ -84,14 +84,14 @@ public class UI extends JFrame {
             Statement stmt = c.createStatement();
             ResultSet rs;
             String query = "SELECT * FROM dataset WHERE title LIKE \"%" + txtSearch.getText() + "%\"";
-            if (dairy == true) {
+            if (dairy) {
                 query += " and ingredients NOT LIKE \"%milk%\""+
                          " and ingredients NOT LIKE \"%butter%\""+
                          " and ingredients NOT LIKE \"%cheese%\""+
                          " and ingredients NOT LIKE \"%cream%\""+
                          " and ingredients NOT LIKE \"%yogurt%\"";
             }
-            if (nut == true) {
+            if (nut) {
                 for (int i = 0; i < nutList.length; i++) {
                     query += " and ingredients NOT LIKE \"%" + nutList[i] + "%\"";
                 }
@@ -111,9 +111,9 @@ public class UI extends JFrame {
         }
     }
 
-    private void searchFunctionV2() {
+    private void searchFunctionV2(String importedPantry) {
         try {
-            String importedPantry = "";
+            //String importedPantry = "";
             center.removeAll();
             Connection c = database.getConnection();
             Statement stmt = c.createStatement();
@@ -128,6 +128,7 @@ public class UI extends JFrame {
                     "where E.ingredient_name in (" + importedPantry + ") " +
                     "group by E.id) as T2 " +
                     "where T1.id = T2.id and T1.totalIngredients = T2.total)";
+
             if(dairy || nut){
                 SQL_Query+="WHERE ";
             }
@@ -239,11 +240,12 @@ public class UI extends JFrame {
         });
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
-            if(importDataSearch){
-                searchFunctionV2();
-            }else{
-                searchFunction();
-            }
+            searchFunction();
+//            if(importDataSearch){
+//                searchFunctionV2();
+//            }else{
+//                searchFunction();
+//            }
         });
 
         JScrollPane scrollPane = new JScrollPane(center,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -273,11 +275,19 @@ public class UI extends JFrame {
         importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
+                JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
                 int returnVal = fileChooser.showOpenDialog(null);
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
+                    try {
+                        FileImporter fileImporter = new FileImporter(file);
+                        String userPantry = fileImporter.pantryToString();
+                        searchFunctionV2(userPantry);
+
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
 //                    try {
 //                        reader.readList(file);
 //                        System.out.println(reader.toString());
