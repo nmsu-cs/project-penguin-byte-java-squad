@@ -28,6 +28,10 @@ public class UI extends JFrame {
     private PlaceholderTextField txtSearch;
 
     private boolean nut;
+    private String[] nutList = {"Almond", "Beechnut", "Brazil nut", "Butternut", "Cashew", "Chestnut", "Chinquapin nut", "Coconut",
+                                "Filbert", "hazelnut", "Gianduja", "Ginkgo nut", "Hickory nut", " nut ", "nuts", "peanut",
+                                "Litchi", "lichee", "lychee nut", "Macadamia nut", "Marzipan", "Nangai nut",
+                                "Pecan", "Pesto", "Pili nut", "Pine nut", "Pistachio", "Praline", "Shea nut", "Walnut"};
     private boolean dairy;
 
 
@@ -78,8 +82,24 @@ public class UI extends JFrame {
             Connection c = database.getConnection();
             Statement stmt = c.createStatement();
             ResultSet rs;
-            rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%"+txtSearch.getText()+"%\" LIMIT "+pagination_Increments+" OFFSET "+paginationCurrent);
+            String query = "SELECT * FROM dataset WHERE title LIKE \"%" + txtSearch.getText() + "%\"";
+            if (dairy == true) {
+                query += " and ingredients NOT LIKE \"%milk%\""+
+                         " and ingredients NOT LIKE \"%butter%\""+
+                         " and ingredients NOT LIKE \"%cheese%\""+
+                         " and ingredients NOT LIKE \"%cream%\""+
+                         " and ingredients NOT LIKE \"%yogurt%\"";
+            }
+            if (nut == true) {
+                for (int i = 0; i < nutList.length; i++) {
+                    query += " and ingredients NOT LIKE \"%" + nutList[i] + "%\"";
+                }
+            }
+            query += " LIMIT " + pagination_Increments + " OFFSET " + paginationCurrent;
+            // rs = stmt.executeQuery("SELECT * FROM dataset WHERE title LIKE \"%" + txtSearch.getText() + "%\" LIMIT " + pagination_Increments + " OFFSET " + paginationCurrent);
+            rs = stmt.executeQuery(query);
 //                ResultSetMetaData rsmd = rs.getMetaData();
+
             afterSearchFunctions(rs,null);
         } catch (SQLException e) {
             throw new RuntimeException(e);
