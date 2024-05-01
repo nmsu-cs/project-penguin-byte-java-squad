@@ -14,6 +14,8 @@ import java.net.URI;
 public class RecipeButton extends JButton {
     private Recipe recipe = null;
 
+    public boolean AIGeneratedImages = false;
+
 
     public RecipeButton(Recipe recipe) throws IOException, InterruptedException {
         this.recipe = recipe;
@@ -21,7 +23,7 @@ public class RecipeButton extends JButton {
         JLabel left = new JLabel();
         int widHei = 60;
 
-        String filePath = "images/"+recipe.getTitle()+".png";
+        String filePath = "images/"+recipe.getTitle().replace(",", "").replace("\"","")+".png";
         File file = new File(filePath);
         if (file.exists()) {
             left.setIcon(new ImageIcon(new ImageIcon("images/"+recipe.getTitle().replace(",", "").replace("\"","")+".png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
