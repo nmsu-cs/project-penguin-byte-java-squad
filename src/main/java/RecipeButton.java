@@ -28,8 +28,12 @@ public class RecipeButton extends JButton {
         if (file.exists()) {
             left.setIcon(new ImageIcon(new ImageIcon("images/"+recipe.getTitle().replace(",", "").replace("\"","")+".png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
         } else {
-            // Generate one.
-            left.setIcon(new ImageIcon(new ImageIcon("images/"+OpenAIRequest.getOpenAI_Image(recipe.getTitle())).getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
+            if (AIGeneratedImages) {
+                // Generate one.
+                left.setIcon(new ImageIcon(new ImageIcon("images/" + OpenAIRequest.getOpenAI_Image(recipe.getTitle())).getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
+            }else{
+                left.setIcon(new ImageIcon(new ImageIcon("images/recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));
+            }
         }
 
         //left.setIcon(new ImageIcon(new ImageIcon("recipe-init.png").getImage().getScaledInstance(widHei, widHei, Image.SCALE_SMOOTH)));

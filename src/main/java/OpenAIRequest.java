@@ -16,11 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OpenAIRequest {
-    public static void main(String[] args) throws IOException, InterruptedException {
-//        getOpenAI_Image("A Recipe image, of Chicken Funny");
-
-    }
-
     public static String getOpenAI_Image(String title) throws IOException, InterruptedException{
         //title = "A Recipe image of "+title;
         title = title.replace(",", "").replace("\"","");
