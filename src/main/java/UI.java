@@ -26,6 +26,7 @@ public class UI extends JFrame {
 
     private JPanel center;
     private PlaceholderTextField txtSearch;
+    private JCheckBox jackStoleThis;
 
     private boolean nut;
     private String[] nutList = {"Almond", "Beechnut", "Brazil nut", "Butternut", "Cashew", "Chestnut", "Chinquapin nut", "Coconut",
@@ -117,19 +118,40 @@ public class UI extends JFrame {
             Connection c = database.getConnection();
             Statement stmt = c.createStatement();
             ResultSet rs;
-            String queryString = "select * from dataset D where D.id in " +
-                    "(select T1.id " +
+            String SQL_Query = "select * from dataset D where D.id in " +
+                    "(select T1.id" +
                     "from (select I.id, count(*) as totalIngredients " +
                     "from ingredients I " +
                     "group by I.id) as T1, " +
-                    "(select E.id, count(*) as total " +
+                    "(select id, count(*) as total " +
                     "from ingredients E " +
                     "where E.ingredient_name in (" + importedPantry + ") " +
                     "group by E.id) as T2 " +
                     "where T1.id = T2.id and T1.totalIngredients = T2.total)";
-            System.out.println(queryString);
-            rs = stmt.executeQuery(queryString);
-            afterSearchFunctions(rs, importedPantry);
+
+            if(dairy || nut){
+                SQL_Query+="WHERE ";
+            }
+            if(jackStoleThis.isSelected()){
+                if(!(dairy||nut)){
+                    SQL_Query+="WHERE ";
+                }
+                SQL_Query+="title LIKE \"%"+txtSearch.getText()+"%\"";
+            }
+            if (dairy) {
+                SQL_Query += " and ingredients NOT LIKE \"%milk%\""+
+                        " and ingredients NOT LIKE \"%butter%\""+
+                        " and ingredients NOT LIKE \"%cheese%\""+
+                        " and ingredients NOT LIKE \"%cream%\""+
+                        " and ingredients NOT LIKE \"%yogurt%\"";
+            }
+            if (nut) {
+                for (int i = 0; i < nutList.length; i++) {
+                    SQL_Query += " and ingredients NOT LIKE \"%" + nutList[i] + "%\"";
+                }
+            }
+            rs = stmt.executeQuery(SQL_Query);
+            afterSearchFunctions(rs,importedPantry);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -143,16 +165,29 @@ public class UI extends JFrame {
         JPanel main = new JPanel();
         main.setLayout(new MigLayout("wrap 1","[100%]","[7%, grow][83%, grow][10%, grow]"));
 
+
         JPanel topBar = new JPanel();
-        topBar.setLayout(new MigLayout("","[80%, grow][20%, grow]",""));
+        topBar.setLayout(new MigLayout("","[100%, grow]",""));
         topBar.putClientProperty(FlatClientProperties.STYLE,"" +
                 "arc:10;" +
                 "[light]background:darken(@background,5%);" +
                 "[dark]background:lighten(@background,5%)");
+        JPanel topBar_Main = new JPanel();
+        JPanel topBar_Bottom = new JPanel();
+        topBar_Bottom.putClientProperty(FlatClientProperties.STYLE,"" +
+                "arc:10;" +
+                "[light]background:darken(@background,5%);" +
+                "[dark]background:lighten(@background,5%)");
+        topBar_Main.setLayout(new MigLayout("","[90%, grow][10%, grow]",""));
+        topBar_Main.putClientProperty(FlatClientProperties.STYLE,"" +
+                "arc:10;" +
+                "[light]background:darken(@background,5%);" +
+                "[dark]background:lighten(@background,5%)");
         main.add(topBar,"grow,wrap");
-
+        topBar.add(topBar_Main,"grow, wrap");
+        topBar.add(topBar_Bottom);
         JLabel tField = new JLabel("Cooking Companion, Title search");
-        topBar.add(tField,"wrap");
+        topBar_Main.add(tField,"wrap");
 
 
         txtSearch = new PlaceholderTextField();
@@ -164,19 +199,19 @@ public class UI extends JFrame {
 
                 "focusWidth:0;"+
                 "innerFocusWidth:0");
-        topBar.add(txtSearch,"grow");
+        topBar_Main.add(txtSearch,"grow");
         JButton btnSearch = new JButton();
         btnSearch.setText("Search");
-        topBar.add(btnSearch,"grow, wrap");
+        topBar_Main.add(btnSearch,"grow");
 
         JCheckBox andrew1 = new JCheckBox("Dairy-Free");
 
         JCheckBox andrew2 = new JCheckBox("Nut-Free");
 
-        JCheckBox jackStoleThis = new JCheckBox("?");
-        topBar.add(andrew1,"grow");
-        topBar.add(andrew2,"grow");
-        topBar.add(jackStoleThis,"grow");
+        jackStoleThis = new JCheckBox("Owned-Ingredients only");
+        topBar_Bottom.add(andrew1);
+        topBar_Bottom.add(andrew2);
+        topBar_Bottom.add(jackStoleThis);
 
         center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
@@ -197,6 +232,11 @@ public class UI extends JFrame {
 
         jackStoleThis.addActionListener(g -> {
             importDataSearch = jackStoleThis.isSelected();
+            if (jackStoleThis.isSelected()){
+                tField.setText("Cooking Companion, Ingredient Filtering");
+            }else{
+                tField.setText("Cooking Companion, Title Search");
+            }
         });
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
@@ -229,9 +269,9 @@ public class UI extends JFrame {
         MigLayout layout = new MigLayout("","[20%][20%, grow][20%, grow][20%, grow][20%]","grow");
         bottomPanel.setLayout(layout);
 
-
+        // IMPORT INGREDIENT FILE
         BottomButton importButton = new BottomButton();
-        importButton.setText("Import ingredient file");
+        importButton.setText("<html><p>Import\nIngredients</p></html>");
         importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -258,8 +298,58 @@ public class UI extends JFrame {
             }
         });
         bottomPanel.add(importButton,"skip, grow");
-        bottomPanel.add(new BottomButton(),"grow");
-        bottomPanel.add(new BottomButton(),"grow");
+
+        BottomButton searchByImport = new BottomButton();
+        searchByImport.setText("<html><p>Can make\nrecipes</p></html>");
+        bottomPanel.add(searchByImport,"grow");
+
+
+        BottomButton settings = new BottomButton();
+        settings.setText("<html><p>Settings</p></html>");
+        bottomPanel.add(settings,"grow");
+        settings.addActionListener(settingsBtn -> {
+            final JFrame parent = new JFrame();
+            JLabel lbl = new JLabel("Database Settings");
+            JPanel pnl = new JPanel(new GridLayout(1,1));
+            PlaceholderTextField hostAddr = new PlaceholderTextField();
+            hostAddr.setPlaceholder("Host Address");
+            hostAddr.setText(database.host);
+            PlaceholderTextField port = new PlaceholderTextField();
+            port.setPlaceholder("Port");
+            port.setText(database.port);
+            PlaceholderTextField dbtext = new PlaceholderTextField();
+            dbtext.setPlaceholder("Database Name");
+            dbtext.setText(database.data);
+            PlaceholderTextField username = new PlaceholderTextField();
+            username.setPlaceholder("User");
+            username.setText(database.userN);
+            PlaceholderTextField pass = new PlaceholderTextField();
+            pass.setPlaceholder("Password");
+            pass.setText(database.pass);
+
+            JButton saveSettings = new JButton();
+            saveSettings.setText("Save");
+
+            saveSettings.addActionListener(svBttnDB -> {
+                database.setConnectionSettings(hostAddr.getText(),port.getText(),username.getText(),pass.getText(),dbtext.getText());
+                JOptionPane.showMessageDialog(this,"Updated database connection settings.");
+                parent.dispose();
+            });
+
+            pnl.add(lbl);
+            pnl.add(hostAddr);
+            pnl.add(port);
+            pnl.add(dbtext);
+            pnl.add(username);
+            pnl.add(pass);
+            pnl.add(saveSettings);
+
+            parent.add(pnl);
+
+            parent.pack();
+            parent.setVisible(true);
+            parent.setLocationRelativeTo(this);
+        });
         return main;
     }
 
