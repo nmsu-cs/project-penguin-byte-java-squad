@@ -19,6 +19,7 @@ public class UI extends JFrame {
     private int paginationCurrent = 0;
     private int pagination_Increments = 10; // Changes the limit by.
     private boolean importDataSearch = false;
+    public String userPantry;
     public UI() {
         init();
         database = new database();
@@ -112,6 +113,13 @@ public class UI extends JFrame {
     }
 
     private void searchFunctionV2(String importedPantry) {
+        if(importedPantry == null){
+            System.out.println("IMPORT PANTRY!");
+            JOptionPane.showMessageDialog(this,
+                    "You must import your pantry before we can use this option.");
+
+            return;
+        }
         try {
             //String importedPantry = "";
             center.removeAll();
@@ -129,31 +137,18 @@ public class UI extends JFrame {
                     "group by E.id) as T2 " +
                     "where T1.id = T2.id and T1.totalIngredients = T2.total)";
 
-            if(dairy || nut){
-                SQL_Query+=" WHERE ";
-            }
             if(jackStoleThis.isSelected()){
-                if(!(dairy||nut)){
-                    SQL_Query+=" WHERE ";
-                }
-                SQL_Query+="title LIKE \"%"+txtSearch.getText()+"%\"";
+                SQL_Query+=" AND title LIKE \"%"+txtSearch.getText()+"%\"";
             }
             if (dairy) {
-                if(jackStoleThis.isSelected()){
-                    SQL_Query += " and ";
-                }
-                SQL_Query += "ingredients NOT LIKE \"%milk%\""+
+                SQL_Query += " AND ingredients NOT LIKE \"%milk%\""+
                         " and ingredients NOT LIKE \"%butter%\""+
                         " and ingredients NOT LIKE \"%cheese%\""+
                         " and ingredients NOT LIKE \"%cream%\""+
                         " and ingredients NOT LIKE \"%yogurt%\"";
             }
             if (nut) {
-                if(dairy||jackStoleThis.isSelected()){
-                    SQL_Query += " and ";
-                }
-                SQL_Query += "ingredients NOT LIKE \"%" + nutList[0] + "%\"";
-                for (int i = 1; i < nutList.length; i++) {
+                for (int i = 0; i < nutList.length; i++) {
                     SQL_Query += " and ingredients NOT LIKE \"%" + nutList[i] + "%\"";
                 }
             }
@@ -249,11 +244,11 @@ public class UI extends JFrame {
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
             searchFunction();
-//            if(importDataSearch){
-//                searchFunctionV2();
-//            }else{
-//                searchFunction();
-//            }
+            if(jackStoleThis.isSelected()){
+                searchFunctionV2(userPantry);
+            }else{
+                searchFunction();
+            }
         });
 
         JScrollPane scrollPane = new JScrollPane(center,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -290,7 +285,7 @@ public class UI extends JFrame {
                     File file = fileChooser.getSelectedFile();
                     try {
                         FileImporter fileImporter = new FileImporter(file);
-                        String userPantry = fileImporter.pantryToString();
+                        userPantry = fileImporter.pantryToString();
                         searchFunctionV2(userPantry);
 
                     } catch (IOException ex) {
