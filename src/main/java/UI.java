@@ -37,7 +37,7 @@ public class UI extends JFrame {
 
 
     private void afterSearchFunctions(ResultSet rs,String adSearch) throws IOException, InterruptedException, SQLException {
-        ArrayList<Recipe> recipes = Recipe.getList(rs, dairy, nut);
+        ArrayList<Recipe> recipes = Recipe.getList(rs);
 
         for (Recipe rp : recipes){
             center.add(new RecipeButton(rp));
@@ -238,8 +238,8 @@ public class UI extends JFrame {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
 //                    try {
-////                        reader.readList(file);
-////                        System.out.println(reader.toString());
+//                        reader.readList(file);
+//                        System.out.println(reader.toString());
 //                    } catch (IOException ex) {
 //                        throw new RuntimeException(ex);
 //                    }
