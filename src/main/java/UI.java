@@ -2,6 +2,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UI extends JFrame {
     private static database database;
@@ -35,6 +36,9 @@ public class UI extends JFrame {
                                 "Litchi", "lichee", "lychee nut", "Macadamia nut", "Marzipan", "Nangai nut",
                                 "Pecan", "Pesto", "Pili nut", "Pine nut", "Pistachio", "Praline", "Shea nut", "Walnut"};
     private boolean dairy;
+    private String[] dairyList = {"milk", "cheese", "sour cream", "heavy cream", "whipping cream", "butter", "yogurt", "yoghurt",
+                                  "cheddar", "mozzarella", "brie", "feta", "gouda", "camembert", "blue cheese", "bleu cheese",
+                                  "parmesean", "swiss cheese"};
 
 
 
@@ -86,11 +90,9 @@ public class UI extends JFrame {
             ResultSet rs;
             String query = "SELECT * FROM dataset WHERE title LIKE \"%" + txtSearch.getText() + "%\"";
             if (dairy) {
-                query += " and ingredients NOT LIKE \"%milk%\""+
-                         " and ingredients NOT LIKE \"%butter%\""+
-                         " and ingredients NOT LIKE \"%cheese%\""+
-                         " and ingredients NOT LIKE \"%cream%\""+
-                         " and ingredients NOT LIKE \"%yogurt%\"";
+                for (int d = 0; d < dairyList.length; d++) {
+                    query += " and ingredients NOT LIKE \"%" + dairyList[d] + "%\"";
+                }
             }
             if (nut) {
                 for (int i = 0; i < nutList.length; i++) {
@@ -141,11 +143,9 @@ public class UI extends JFrame {
                 SQL_Query+=" AND title LIKE \"%"+txtSearch.getText()+"%\"";
             }
             if (dairy) {
-                SQL_Query += " AND ingredients NOT LIKE \"%milk%\""+
-                        " and ingredients NOT LIKE \"%butter%\""+
-                        " and ingredients NOT LIKE \"%cheese%\""+
-                        " and ingredients NOT LIKE \"%cream%\""+
-                        " and ingredients NOT LIKE \"%yogurt%\"";
+                for (int d = 0; d < dairyList.length; d++) {
+                    SQL_Query += " and ingredients NOT LIKE \"%" + dairyList[d] + "%\"";
+                }
             }
             if (nut) {
                 for (int i = 0; i < nutList.length; i++) {
@@ -165,7 +165,7 @@ public class UI extends JFrame {
         }
     }
 
-    private JPanel mainPane(){
+    private JPanel mainPane() {
         JPanel main = new JPanel();
         main.setLayout(new MigLayout("wrap 1","[100%]","[7%, grow][83%, grow][10%, grow]"));
 
@@ -219,6 +219,7 @@ public class UI extends JFrame {
 
         center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
+
         andrew2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -304,17 +305,52 @@ public class UI extends JFrame {
         bottomPanel.add(importButton,"skip, grow");
 
         BottomButton searchByImport = new BottomButton();
-        searchByImport.setText("<html><p>Can make\nrecipes</p></html>");
+        searchByImport.setText("Help");
         bottomPanel.add(searchByImport,"grow");
+        searchByImport.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane helpPop = new JOptionPane();
+                String helpText = "INSTRUCTIONS:\n" +
+                                  "For basic searches, simply enter a keyword\n" +
+                                  "or name of a recipe you would like to search for!\n\n" +
+                                  "Scroll through the recipes, and if you see one you\n" +
+                                  "like, simply click on it to find out more details!\n\n" +
+                                  "If you want to find recipes that accomodate to \n" +
+                                  "food allergies like dairy or tree nuts, mark the\n" +
+                                  "checkbox below the search bar to enable said\n" +
+                                  "filter.\n\n" +
+                                  "To find recipes that you can make with your\n" +
+                                  "current ingredients, you must do the following:\n" +
+                                  " - Create a .txt file\n" +
+                                  " - In said file, write out ingredients you own,\n" +
+                                  "   one ingredient per line\n" +
+                                  " - Once you have this file on your device, press\n" +
+                                  "   the import ingredients button and select your\n" +
+                                  "   file.\n" +
+                                  " - Once the file is uploaded, a default search\n" +
+                                  "   will occur that finds recipes using your list.\n" +
+                                  " - If you would then like to search for specific\n" +
+                                  "   recipes based on your list, type your search\n" +
+                                  "   and check the Owned Ingredients Only checkbox.";
+                helpPop.showInternalMessageDialog(null,helpText, "Help", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
 
 
         BottomButton settings = new BottomButton();
         settings.setText("<html><p>Settings</p></html>");
         bottomPanel.add(settings,"grow");
+        AtomicBoolean bounce = new AtomicBoolean(false);
+
         settings.addActionListener(settingsBtn -> {
             final JFrame parent = new JFrame();
             JLabel lbl = new JLabel("Database Settings");
-            JPanel pnl = new JPanel(new GridLayout(1,1));
+            JPanel pnl = new JPanel(new GridLayout(8,1));
+            pnl.putClientProperty(FlatClientProperties.STYLE,"" +
+                    "arc:10;" +
+                    "[light]background:darken(@background,5%);" +
+                    "[dark]background:lighten(@background,5%)");
             PlaceholderTextField hostAddr = new PlaceholderTextField();
             hostAddr.setPlaceholder("Host Address");
             hostAddr.setText(database.host);
@@ -332,6 +368,13 @@ public class UI extends JFrame {
             pass.setText(database.pass);
 
             JButton saveSettings = new JButton();
+            saveSettings.putClientProperty(FlatClientProperties.STYLE,"" +
+                    "arc:10;" +
+                    "[light]background:darken(@background,5%);" +
+                    "[dark]background:lighten(@background,5%);" +
+                    "borderWidth:0;"+
+                    "focusPainted:false;"+
+                    "innerFocusWidth:0");
             saveSettings.setText("Save");
 
             saveSettings.addActionListener(svBttnDB -> {
@@ -346,7 +389,38 @@ public class UI extends JFrame {
             pnl.add(dbtext);
             pnl.add(username);
             pnl.add(pass);
-            pnl.add(saveSettings);
+            pnl.add(saveSettings, "wrap");
+            JButton ldTog = new JButton("Light Mode");
+            if (bounce.get()) {ldTog.setText("Dark Mode");}
+            ldTog.putClientProperty(FlatClientProperties.STYLE,"" +
+                    "arc:10;" +
+                    "[light]background:darken(@background,5%);" +
+                    "[dark]background:lighten(@background,5%);" +
+                    "borderWidth:0;"+
+                    "focusPainted:false;"+
+                    "innerFocusWidth:0");
+            ldTog.addActionListener(p -> {
+                try {
+                    if (bounce.get()) {
+                        ldTog.setText("Light Mode");
+                        bounce.set(false);
+                        UIManager.setLookAndFeel(new FlatMacDarkLaf());
+                    }
+                    else {
+                        ldTog.setText("Dark Mode");
+                        bounce.set(true);
+                        UIManager.setLookAndFeel(new FlatMacLightLaf());
+                    }
+                } catch (UnsupportedLookAndFeelException e) {
+                    throw new RuntimeException(e);
+                }
+                SwingUtilities.updateComponentTreeUI(this);
+                SwingUtilities.updateComponentTreeUI(parent);
+                pnl.repaint();
+                pnl.revalidate();
+            });
+
+            pnl.add(ldTog);
 
             parent.add(pnl);
 
