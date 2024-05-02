@@ -152,6 +152,7 @@ public class UI extends JFrame {
                     SQL_Query += " and ingredients NOT LIKE \"%" + nutList[i] + "%\"";
                 }
             }
+            SQL_Query += " LIMIT " + pagination_Increments + " OFFSET " + paginationCurrent;
             System.out.println(SQL_Query);
             rs = stmt.executeQuery(SQL_Query);
             afterSearchFunctions(rs,importedPantry);
