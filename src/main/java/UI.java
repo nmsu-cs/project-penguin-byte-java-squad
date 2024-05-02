@@ -245,6 +245,7 @@ public class UI extends JFrame {
         });
         btnSearch.addActionListener(search -> {
             System.out.println("Search pressed.");
+            paginationCurrent = 0;
             searchFunction();
             if(jackStoleThis.isSelected()){
                 searchFunctionV2(userPantry);
@@ -441,6 +442,36 @@ public class UI extends JFrame {
         setLocationRelativeTo(null);
         setContentPane(mainPane());
 
+    }
+
+    private static void setupIngredientsTable() throws SQLException {
+        Statement stmt = database.getConnection().createStatement();
+        ResultSet data = stmt.executeQuery("SELECT id,NER FROM dataset LIMIT 1000 OFFSET 15252"); // FOR OFFSET, Double check column ids, this offset doesn't directly reference correctly.
+
+        while(data.next()){
+            int id = data.getInt("id");
+            System.out.println("Processing Ingredients for: "+id);
+            String ner = data.getString("NER");
+            ner = ner.replace("[","");
+            ner = ner.replace("]","");
+            String[] nersplit = ner.split("\", ");
+
+            PreparedStatement prep = database.getConnection().prepareStatement("INSERT INTO new_ingredients VALUES (?,?)");
+            for(String str : nersplit){
+                //System.out.println(str);
+                str = str.replace("\"","");
+                str = str.replace(", ","");
+                System.out.print(str+",");
+                prep.setString(2,str);
+                prep.setInt(1,id);
+
+                prep.addBatch();
+
+            }
+            System.out.println(prep);
+            prep.executeBatch();
+            System.out.println();
+        }
     }
 
     public static void main(String[] args) {
