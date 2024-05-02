@@ -21,7 +21,7 @@ public class database {
             return connection;
         }
 
-        System.out.println(host);
+        if (UI.debug) System.out.println(host);
 
         String url = "jdbc:mysql://"+host+":"+port+"/"+data;
         String user = userN;
@@ -30,8 +30,8 @@ public class database {
         try {
             this.connection = DriverManager.getConnection(url, user, password);
         }catch(Exception e){
-            System.out.println("Database connection failed, dashboard.database is probably not correctly setup.");
-            System.out.println(e);
+            if (UI.debug) System.out.println("Database connection failed, dashboard.database is probably not correctly setup.");
+            if (UI.debug) System.out.println(e);
         }
         return this.connection;
     }

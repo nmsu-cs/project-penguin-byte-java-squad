@@ -45,7 +45,7 @@ public class RecipeButton extends JButton {
 
         title.setText("<html><h3 style='max-width: 200px;'>"+recipe.getTitle()+"</h3></html>");
 
-        System.out.println(recipe);
+        if (UI.debug) System.out.println(recipe);
 
         right.add(title);
         right.add(new JLabel("UID: "+recipe.getID()));
@@ -72,18 +72,8 @@ public class RecipeButton extends JButton {
             recipeDetails();
         });
     }
-
-    public Recipe getRecipe() {
-        return this.recipe;
-    }
-
-    private JButton row(Recipe rp) {
-
-
-        return this;
-
-    }
-
+    public Recipe getRecipe() {return this.recipe;}
+    private JButton row(Recipe rp) {return this;}
     private void recipeDetails() {
         Recipe rp = this.recipe;
         JFrame nFrame = new JFrame("Recipe Details");

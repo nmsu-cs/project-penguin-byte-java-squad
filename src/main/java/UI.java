@@ -32,6 +32,7 @@ public class UI extends JFrame {
     private PlaceholderTextField txtSearch;
     private JCheckBox jackStoleThis;
 
+    public static boolean debug = false;
     private boolean nut;
     private String[] nutList = {"Almond", "Beechnut", "Brazil nut", "Butternut", "Cashew", "Chestnut", "Chinquapin nut", "Coconut",
                                 "Filbert", "hazelnut", "Gianduja", "Ginkgo nut", "Hickory nut", " nut ", "nuts", "peanut",
@@ -118,9 +119,9 @@ public class UI extends JFrame {
 
     private void searchFunctionV2(String importedPantry) {
         if(importedPantry == null){
-            System.out.println("IMPORT PANTRY!");
+            if (debug) {System.out.println("No Pantry Imported");}
             JOptionPane.showMessageDialog(this,
-                    "You must import your pantry before we can use this option.");
+                    "You must import a pantry before we can use this option.");
 
             return;
         }
@@ -155,7 +156,7 @@ public class UI extends JFrame {
                 }
             }
             SQL_Query += " LIMIT " + pagination_Increments + " OFFSET " + paginationCurrent;
-            System.out.println(SQL_Query);
+            if (debug) {System.out.println(SQL_Query);}
             rs = stmt.executeQuery(SQL_Query);
             afterSearchFunctions(rs,importedPantry);
         } catch (SQLException e) {
@@ -225,28 +226,28 @@ public class UI extends JFrame {
         andrew2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (andrew2.isSelected()) {nut = true; System.out.println("Nut pressed on");}
-                if (!andrew2.isSelected()) {nut = false; System.out.println("Nut pressed off");}
+                if (andrew2.isSelected()) {nut = true; if (debug) {System.out.println("Nut pressed on");}}
+                if (!andrew2.isSelected()) {nut = false; if (debug) {System.out.println("Nut pressed off");}}
             }
         });
         andrew1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (andrew1.isSelected()) {dairy = true; System.out.println("Dairy pressed on");}
-                if (!andrew1.isSelected()) {dairy = false; System.out.println("Dairy pressed off");}
+                if (andrew1.isSelected()) {dairy = true; if (debug) {System.out.println("Dairy pressed on");}}
+                if (!andrew1.isSelected()) {dairy = false; if (debug) {System.out.println("Dairy pressed off");}}
             }
         });
 
         jackStoleThis.addActionListener(g -> {
             importDataSearch = jackStoleThis.isSelected();
             if (jackStoleThis.isSelected()){
-                tField.setText("Cooking Companion, Ingredient Filtering");
+                tField.setText("Cooking Companion, Pantry Search");
             }else{
                 tField.setText("Cooking Companion, Title Search");
             }
         });
         btnSearch.addActionListener(search -> {
-            System.out.println("Search pressed.");
+            if (debug) {System.out.println("Search pressed.");}
             paginationCurrent = 0;
             searchFunction();
             if(jackStoleThis.isSelected()){
@@ -451,23 +452,20 @@ public class UI extends JFrame {
 
     private void init(){
         setTitle("Cooking Companion");
-
         setIconImage(new ImageIcon("logo.png").getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(new Dimension(375, 812));
         setResizable(false);
         setLocationRelativeTo(null);
         setContentPane(mainPane());
-
     }
 
     private static void setupIngredientsTable() throws SQLException {
         Statement stmt = database.getConnection().createStatement();
         ResultSet data = stmt.executeQuery("SELECT id,NER FROM dataset LIMIT 1000 OFFSET 15252"); // FOR OFFSET, Double check column ids, this offset doesn't directly reference correctly.
-
         while(data.next()){
             int id = data.getInt("id");
-            System.out.println("Processing Ingredients for: "+id);
+            if (debug) {System.out.println("Processing Ingredients for: "+id);}
             String ner = data.getString("NER");
             ner = ner.replace("[","");
             ner = ner.replace("]","");
@@ -478,16 +476,16 @@ public class UI extends JFrame {
                 //System.out.println(str);
                 str = str.replace("\"","");
                 str = str.replace(", ","");
-                System.out.print(str+",");
+                if (debug) System.out.print(str+",");
                 prep.setString(2,str);
                 prep.setInt(1,id);
 
                 prep.addBatch();
 
             }
-            System.out.println(prep);
+            if (debug) System.out.println(prep);
             prep.executeBatch();
-            System.out.println();
+            if (debug) System.out.println();
         }
     }
 
