@@ -6,6 +6,8 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -282,8 +284,23 @@ public class UI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
+                fileChooser.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        if (f.isDirectory()) {
+                            return true;
+                        } else {
+                            String fileName = f.getName().toLowerCase();
+                            return fileName.endsWith(".txt");
+                        }
+                    }
+                    @Override
+                    public String getDescription() {
+                        return "Text Files (*.txt)";
+                    }
+                });
+                fileChooser.setAcceptAllFileFilterUsed(false);
                 int returnVal = fileChooser.showOpenDialog(null);
-
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
                     try {
